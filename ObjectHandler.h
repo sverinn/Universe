@@ -33,8 +33,21 @@ public:
 	{
 		Id = IdCounter++;
 		IsInitialized = true;
-		Mass = 100;
+		Mass = 10000000;
 		Size = 20;
+		X = MouseX;
+		Y = MouseY;
+		dX = 0.0;
+		dY = 0.0;
+		cos = 0.0;
+	};
+
+	PhysicalObject(int MouseX, int MouseY, float InputMass, float InputSize)
+	{
+		Id = IdCounter++;
+		IsInitialized = true;
+		Mass = InputMass;
+		Size = InputSize;
 		X = MouseX;
 		Y = MouseY;
 		dX = 0.0;
@@ -123,5 +136,7 @@ public:
 			<< std::endl;
 	}
 
-	~PhysicalObject() {};
+	~PhysicalObject()
+	{
+	};
 };

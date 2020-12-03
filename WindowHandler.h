@@ -1,2 +1,2 @@
 #pragma once
-void ProcessWindowEvents();
+//void ProcessWindowEvents(sf::RenderWindow &TargetWindow, std::vector<PhysicalObject*> &ObjectReg, float &itimescale);

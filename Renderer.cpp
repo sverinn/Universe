@@ -28,7 +28,7 @@ void RenderScene(sf::RenderWindow &targetWindow, std::vector<PhysicalObject*> &O
 
         if (event.type == sf::Event::MouseButtonPressed)
         {
-            if (event.mouseButton.button == sf::Mouse::Left)
+            if (event.mouseButton.button == sf::Mouse::Right)
             {
                 std::cout << "Creating an object" << std::endl;
                 std::cout << "mouse x: " << event.mouseButton.x << std::endl;
@@ -41,14 +41,19 @@ void RenderScene(sf::RenderWindow &targetWindow, std::vector<PhysicalObject*> &O
 
         if (event.type == sf::Event::KeyPressed)
         {
-            std::cout << "Input: " << std::endl;
-            std::string inputString;
-            std::cin >> inputString;
-            if (inputString == "list_objects")
+            //if (event.key.code == sf::Keyboard::Space)
+
+            if (event.key.code == sf::Keyboard::Enter)
             {
-                std::cout << "There are " << ObjectReg.size() << " objects in the world." << std::endl;
-                for (auto i = 0; i < ObjectReg.size(); i++)
-                    ObjectReg[i]->ShowInfo();
+                std::cout << "Input: " << std::endl;
+                    std::string inputString;
+                    std::cin >> inputString;
+                    if (inputString == "list_objects")
+                    {
+                        std::cout << "There are " << ObjectReg.size() << " objects in the world." << std::endl;
+                            for (auto i = 0; i < ObjectReg.size(); i++)
+                                ObjectReg[i]->ShowInfo();
+                    }
             }
         }
     }
@@ -91,7 +96,7 @@ void RenderScene(sf::RenderWindow &targetWindow, std::vector<PhysicalObject*> &O
             sf::Vertex VectorLine[] =
             {
                 sf::Vertex(sf::Vector2f(ObjectReg[i]->GetX() + (ObjectReg[i]->GetSize()), ObjectReg[i]->GetY() + (ObjectReg[i]->GetSize()))),
-                sf::Vertex(sf::Vector2f(ObjectReg[i]->GetX() + (ObjectReg[i]->GetSize()) + (ObjectReg[i]->GetdX() * 100), ObjectReg[i]->GetY() + (ObjectReg[i]->GetSize()) + (ObjectReg[i]->GetdY() * 100)))
+                sf::Vertex(sf::Vector2f(ObjectReg[i]->GetX() + (ObjectReg[i]->GetSize()) + (ObjectReg[i]->GetdX() * 100)*10, ObjectReg[i]->GetY() + (ObjectReg[i]->GetSize()) + (ObjectReg[i]->GetdY() * 100)*10))
             };
 
             VectorLine->color = sf::Color::Red;

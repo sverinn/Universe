@@ -2,6 +2,7 @@
 #include "ObjectHandler.h"
 #include <vector>
 #include <SFML/System/Sleep.hpp>
+#include <cmath>
 
 float Force(const float &m1, const float &m2, const float &r)
 {
@@ -28,7 +29,7 @@ float FindAcc(PhysicalObject Obj1, PhysicalObject Obj2)
 */
 float FindAccX(PhysicalObject Obj1, PhysicalObject Obj2)
 {
-	float Radius = (Obj1.GetX() - Obj2.GetX());
+	float Radius = (Obj2.GetX() - Obj1.GetX());
 	//if (Radius < 1)
 	//	Radius = 1;
 	float iForce = Force(Obj1.GetMass(), Obj2.GetMass(), Radius);
@@ -37,7 +38,7 @@ float FindAccX(PhysicalObject Obj1, PhysicalObject Obj2)
 
 float FindAccY(PhysicalObject Obj1, PhysicalObject Obj2)
 {
-	float Radius = (Obj1.GetY() - Obj2.GetY());
+	float Radius = (Obj2.GetY() - Obj1.GetY());
 	//if (Radius < 1)
 	//	Radius = 1;
 	float iForce = Force(Obj1.GetMass(), Obj2.GetMass(), Radius);
@@ -46,37 +47,15 @@ float FindAccY(PhysicalObject Obj1, PhysicalObject Obj2)
 
 float FindRadius(PhysicalObject Obj1, PhysicalObject Obj2)
 {
-	float Radius = sqrt(powf((Obj1.GetX() - Obj2.GetX()), 2) + powf((Obj1.GetY() - Obj2.GetY()), 2));
+	float Radius = sqrt(powf((Obj2.GetX() - Obj1.GetX()), 2) + powf((Obj2.GetY() - Obj1.GetY()), 2));
 	return Radius;
-}
-
-/*
-float VDegCos(PhysicalObject Obj1, PhysicalObject Obj2)
-{
-	float aX = Obj2.GetX() - Obj1.GetX();
-	float aY = Obj2.GetY() - Obj1.GetY();
-	float bX = Obj1.GetX() - Obj2.GetX();
-	float bY = Obj1.GetY() - Obj2.GetY();
-	return acosf((aX * bX + aY * bY) / (sqrtf(powf(aX, 2) + powf(aY, 2)) * sqrtf(powf(bX, 2) * powf(bY, 2))));
-};
-*/
-
-float FindSumAcc(float a1, float a2, float degreeCos)
-{
-	return a1 * a2 * degreeCos;
 }
 
 void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& ObjectReg)
 {
-	float AccX = 0.0;
-	float AccY = 0.0;
 	float dX = 0.0;
 	float dY = 0.0;
-	float propX = 0.0;
-	float propY = 0.0;
 	float Radius = 0.0;
-	bool movedX = false;
-	bool movedY = false;
 	
 	for (PhysicalObject* iObject : ObjectReg)
 	{
@@ -84,37 +63,48 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 		{
 			
 			//float a1 = FindAcc(TargetObject, *iObject);
+			/*
 			std::cout << "Acceleration of object with ID " << TargetObject.GetID()
 				<< " towards the object with ID " << iObject->GetID()
 				<< std::endl;
+			*/
 
 			Radius = FindRadius(TargetObject, *iObject);
 
-			dX = acosf(FindAccX(TargetObject, *iObject) / Radius);
-			dY = acosf(FindAccY(TargetObject, *iObject) / Radius);
+			if ((TargetObject.GetSize() + iObject->GetSize()) > Radius)
+			{
+				std::cout << "Collision detected! ID " << TargetObject.GetID() << " & " << iObject->GetID() << std::endl;
+				Radius = TargetObject.GetSize() + iObject->GetSize();
+				continue;
+			}
+
+			std::cout << "RadX: " << FindAccX(TargetObject, *iObject) / FindAccY(TargetObject, *iObject) / Radius << " RadY: " << FindAccY(TargetObject, *iObject) / FindAccX(TargetObject, *iObject) / Radius << std::endl;
+			dX = cos(FindAccX(TargetObject, *iObject)/ FindAccY(TargetObject, *iObject)/Radius)*timescale;
+			dY = sin(FindAccY(TargetObject, *iObject)/ FindAccX(TargetObject, *iObject)/Radius)*timescale;
+			std::cout << "Acceleration of object with ID " << TargetObject.GetID()
+				<< " towards the object with ID " << iObject->GetID()
+				<< " is dX: " << dX << " dY: " << dY
+				<< std::endl;
 
 			if (TargetObject.GetX() > iObject->GetX())
 				dX = -dX;
-			std::cout << "dX is " << dX << std::endl;
-
 			if (TargetObject.GetY() > iObject->GetY())
 				dY = -dY;
-			std::cout << "dX is " << dX << std::endl;
-			std::cout << "dY is " << dY << std::endl;
 		}
 	}
 
+	//if (TargetObject.GetX() > 0 && TargetObject.GetX() < ScreenWidth)
+	{
+		TargetObject.SetAcc(TargetObject.GetdX() + dX , TargetObject.GetdY());
+		TargetObject.SetX(TargetObject.GetX() + TargetObject.GetdX() + dX);
+	}
+	//if (TargetObject.GetY() > 0 && TargetObject.GetY() < ScreenHeight)
+	{
+		TargetObject.SetAcc(TargetObject.GetdX(), TargetObject.GetdY() + dY);
+		TargetObject.SetY(TargetObject.GetY() + TargetObject.GetdY() + dY);
+	}
 
-	if (TargetObject.GetX() > 0 && TargetObject.GetX() < 800)
-	{
-		TargetObject.SetAcc(TargetObject.GetdX() + (dX * timescale), TargetObject.GetdY());
-		TargetObject.SetX(TargetObject.GetX() + TargetObject.GetdX() + (dX * timescale));
-	}
-	if (TargetObject.GetY() > 0 && TargetObject.GetY() < 600)
-	{
-		TargetObject.SetAcc(TargetObject.GetdX(), TargetObject.GetdY() + (dY * timescale));
-		TargetObject.SetY(TargetObject.GetY() + TargetObject.GetdY() + (dY * timescale));
-	}
+
 }
 
 void UpdatePhysics(std::vector<PhysicalObject*> &ObjectArray)
@@ -123,7 +113,7 @@ void UpdatePhysics(std::vector<PhysicalObject*> &ObjectArray)
 		for (PhysicalObject* iObject : ObjectArray)
 		{
 			MoveObject(*iObject, ObjectArray);
-			std::cout << "Physics updated." << std::endl;
-			//sf::sleep(sf::milliseconds(100));
+			//std::cout << "Physics updated." << std::endl;
+			//sf::sleep(sf::milliseconds(1/timescale));
 		}
 };
