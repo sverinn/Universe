@@ -5,4 +5,4 @@ const float G = 6.67448478 * 1e-11;
 
 //const float G = 6.6744;
 
-const int timescale = 1000000;
+const float timescale = 0.1;

@@ -33,7 +33,7 @@ public:
 	{
 		Id = IdCounter++;
 		IsInitialized = true;
-		Mass = 10000;
+		Mass = 100;
 		Size = 20;
 		X = MouseX;
 		Y = MouseY;

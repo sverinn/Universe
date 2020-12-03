@@ -87,33 +87,20 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 			std::cout << "Acceleration of object with ID " << TargetObject.GetID()
 				<< " towards the object with ID " << iObject->GetID()
 				<< std::endl;
-			/*
-			float deg = VDegCos(TargetObject, *iObject);
-			float cos = cosf(deg);
-			float sin = sinf(deg);
-			
-			std::cout << "Vector degree is " << deg << std::endl;
-			std::cout << "Vector cosinus is " << cos << std::endl;
-			std::cout << "Vector sinus is " << sin << std::endl;
-			*/
+
 			Radius = FindRadius(TargetObject, *iObject);
-			AccX = FindAccX(TargetObject, *iObject);
-			AccY = FindAccY(TargetObject, *iObject);
-			propX = AccX / Radius;
-			propY = sqrtf(1 - (propX * propX));
+
+			dX = acosf(FindAccX(TargetObject, *iObject) / Radius);
+			dY = acosf(FindAccY(TargetObject, *iObject) / Radius);
 
 			if (TargetObject.GetX() > iObject->GetX())
-				dX += -AccX * propX;
-			else 
-				dX += AccX * propX;
+				dX = -dX;
 			std::cout << "dX is " << dX << std::endl;
+
 			if (TargetObject.GetY() > iObject->GetY())
-				dY += -AccY * propY;
-			else
-				dY += AccY * propY;
+				dY = -dY;
+			std::cout << "dX is " << dX << std::endl;
 			std::cout << "dY is " << dY << std::endl;
-
-
 		}
 	}
 
@@ -122,22 +109,11 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 	{
 		TargetObject.SetAcc(TargetObject.GetdX() + (dX * timescale), TargetObject.GetdY());
 		TargetObject.SetX(TargetObject.GetX() + TargetObject.GetdX() + (dX * timescale));
-		movedX = true;
 	}
 	if (TargetObject.GetY() > 0 && TargetObject.GetY() < 600)
 	{
 		TargetObject.SetAcc(TargetObject.GetdX(), TargetObject.GetdY() + (dY * timescale));
 		TargetObject.SetY(TargetObject.GetY() + TargetObject.GetdY() + (dY * timescale));
-		movedY = true;
-	}
-	if (movedX || movedY)
-	{
-		std::cout << "Object with ID " << TargetObject.GetID()
-			<< " moved from ["
-			<< TargetObject.GetX() - TargetObject.GetdX() << ", " << TargetObject.GetY() - TargetObject.GetdY()
-			<< "] to ["
-			<< TargetObject.GetX() << ", " << TargetObject.GetY() << "]."
-			<< std::endl;
 	}
 }
 

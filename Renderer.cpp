@@ -82,7 +82,7 @@ void RenderScene(sf::RenderWindow &targetWindow, std::vector<PhysicalObject*> &O
             ObjectInfo.setFont(font);
             ObjectInfo.setCharacterSize(10);
             ObjectInfo.setFillColor(sf::Color::Green);
-            ObjectInfo.setPosition(ObjectReg[i]->GetX(), ObjectReg[i]->GetY() - 2);
+            ObjectInfo.setPosition(ObjectReg[i]->GetX(), ObjectReg[i]->GetY() - 20);
             ObjectInfo.setString("ID: " + std::to_string(ObjectReg[i]->GetID())
                 + ", Mass = " + std::to_string(ObjectReg[i]->GetMass())
                 + ", dX = " + std::to_string(ObjectReg[i]->GetdX())
