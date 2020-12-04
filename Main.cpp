@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <deque>
 
 
 
@@ -141,16 +142,9 @@ bool InitDirect3D(D3DFORMAT ColorFormat, D3DFORMAT DepthFormat)
 
     D3DPRESENT_PARAMETERS d3dpp;
 
-    ZeroMemory(&d3dpp, sizeof(d3dpp));
+    memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
     d3dpp.Windowed = TRUE;
-    d3dpp.hDeviceWindow = g_hWnd;
-    d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
-    d3dpp.BackBufferWidth = g_iWindowWidth;
-    d3dpp.BackBufferHeight = g_iWindowHeight;
-    d3dpp.BackBufferCount = 1;
-    d3dpp.EnableAutoDepthStencil = true;
-    d3dpp.AutoDepthStencilFormat = DepthFormat;
-    d3dpp.BackBufferFormat = DisplayMode.Format;
+    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 
     if (SUCCEEDED(g_pD3D->CreateDevice(
         D3DADAPTER_DEFAULT,
@@ -161,20 +155,15 @@ bool InitDirect3D(D3DFORMAT ColorFormat, D3DFORMAT DepthFormat)
         &d3dDevice)))
         return true;
 
-    if (SUCCEEDED(g_pD3D->CreateDevice(
-        D3DADAPTER_DEFAULT,
-        D3DDEVTYPE_HAL,
-        g_hWnd,
-        D3DCREATE_HARDWARE_VERTEXPROCESSING,
-        &d3dpp,
-        &d3dDevice)))
-        return true;
+    d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);  // Мы не будем использовать освещение
+    d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE); // И буфер глубины тоже
 
-
+    /*
     if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_hWnd,
         D3DCREATE_SOFTWARE_VERTEXPROCESSING,
         &d3dpp, &d3dDevice)))
         return E_FAIL;
+    */
 
 }
 
@@ -185,15 +174,127 @@ void DrawFrame()
     if (d3dDevice->TestCooperativeLevel() == D3DERR_DEVICELOST)
         return;
 
-    d3dDevice->Clear(
-        0L,
-        NULL,
-        D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-        D3DCOLOR_XRGB(0, 0, 0),
-        1.0f,
-        0L);
+    // Инициализация матриц
+    D3DXMATRIX matrixView;
+    D3DXMATRIX matrixProjection;
+
+    D3DXVECTOR3 Vector1(0, 0, 0);
+    D3DXVECTOR3 Vector2(0, 0, 1);
+    D3DXVECTOR3 Vector3(0, 1, 0);
+
+
+    // Матрица вида
+    D3DXMatrixLookAtLH(
+        &matrixView,
+        &Vector1,
+        &Vector2,
+        &Vector3);
+
+    // Матрица проекции
+    D3DXMatrixOrthoOffCenterLH(&matrixProjection, 0, g_iWindowWidth, g_iWindowHeight, 0, 0, 255);
+
+    // Установка матриц в качестве текущих
+    d3dDevice->SetTransform(D3DTS_VIEW, &matrixView);
+    d3dDevice->SetTransform(D3DTS_PROJECTION, &matrixProjection);
+
+    srand(clock());
+
+    struct Particle
+    {
+        float x, y, vx, vy;
+    };
+    std::deque<Particle> particles;
+    Particle tmp;
+    int particleCount = 10;
+
+    for (int i = 0; i < particleCount; ++i)
+    {
+        tmp.x = rand() % g_iWindowWidth;
+        tmp.y = rand() % g_iWindowHeight;
+
+        particles.push_back(tmp);
+    }
+
+    LPDIRECT3DVERTEXBUFFER9 pVertexObject = NULL;
+    LPDIRECT3DVERTEXDECLARATION9 vertexDecl = NULL;
+
+    struct VertexData
+    {
+        float x, y, z, u, v;
+    };
+
+    size_t count = particles.size();
+    VertexData* vertexData = new VertexData[count];
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        vertexData[i].x = particles[i].x;
+        vertexData[i].y = particles[i].y;
+        vertexData[i].z = 0.f;
+        vertexData[i].u = 0;
+        vertexData[i].v = 0;
+    }
+
+    void* pVertexBuffer = NULL;
+
+    //Создание вершинного буфера
+    if(FAILED(d3dDevice->CreateVertexBuffer(
+        count * sizeof(VertexData),
+        D3DUSAGE_WRITEONLY,
+        D3DFVF_XYZ,
+        D3DPOOL_DEFAULT,
+        &pVertexObject,
+        NULL)))
+    {
+        Shutdown();
+        MessageBox(NULL, L"Can`t create vertex buffer", L"Error", MB_OK | MB_ICONERROR);
+        return;
+    };
+
+    // Блокировка буфера, чтобы записать туда данные о вершинах
+    pVertexObject->Lock(0, count * sizeof(VertexData), &pVertexBuffer, 0);
+
+    memcpy(pVertexBuffer, vertexData, count * sizeof(VertexData));
+
+    pVertexObject->Unlock();
+
+    delete[] vertexData;
+    vertexData = nullptr;
+
+    D3DVERTEXELEMENT9 decl[] =
+    {
+        { 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+        D3DDECL_END()
+    };
+
+    // Создаем объект с описанием вершин
+    if (FAILED(d3dDevice->CreateVertexDeclaration(decl, &vertexDecl)))
+    {
+            Shutdown();
+            MessageBox(NULL, L"Can`t create vertex declaration", L"Error", MB_OK | MB_ICONERROR);
+            return;
+    };
+
+
+
+    d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
+
+    // Устанавливаем источник вершин
+    d3dDevice->SetStreamSource(0, pVertexObject, 0, sizeof(VertexData));
+    // Указываем, что хранится в буфере
+    d3dDevice->SetVertexDeclaration(vertexDecl);
 
     d3dDevice->BeginScene();
+
+    if (FAILED(d3dDevice->DrawPrimitive(D3DPRIMITIVETYPE::D3DPT_POINTLIST,
+        0,
+        particles.size())))
+    {
+        Shutdown();
+        MessageBox(NULL, L"Can`t create vertex declaration", L"Error", MB_OK | MB_ICONERROR);
+        return;
+    };
+
     d3dDevice->EndScene();
     d3dDevice->Present(NULL, NULL, NULL, NULL);
 }
