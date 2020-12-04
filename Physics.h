@@ -2,7 +2,7 @@
 #include <vector>
 #include "ObjectHandler.h"
 
-float Force(const float& m1, const float& m2, const float& r);
-float Acc(const float& F, const float& m);
-void MoveObject(PhysicalObject &TargetObject, std::vector<PhysicalObject*> &ObjectReg);
-void UpdatePhysics(std::vector<PhysicalObject*> &ObjectArray);
+float Force(PhysicalObject& Obj1, PhysicalObject& Obj2, const float& DistSq);
+float DistSq(PhysicalObject& Obj1, PhysicalObject& Obj2);
+void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& ObjectReg, const int& timescale);
+void UpdatePhysics(std::vector<PhysicalObject*>& ObjectArray, const int& timescale);
