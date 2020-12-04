@@ -15,8 +15,6 @@ private:
 	float Y;
 	float dX;
 	float dY;
-	float cos;
-	int Z;
 public:
 
 	PhysicalObject()
@@ -24,22 +22,35 @@ public:
 		Id = IdCounter++;
 		IsInitialized = false;
 		Mass = 1;
-		Size = 20;
+		Size = 1;
 		X = 0.0;
 		Y = 0.0;
+		dX = 0.0;
+		dY = 0.0;
 	};
 
 	PhysicalObject(int MouseX, int MouseY)
 	{
 		Id = IdCounter++;
 		IsInitialized = true;
-		Mass = 10000000;
-		Size = 20;
+		Mass = 1000000;
+		Size = 1;
 		X = MouseX;
 		Y = MouseY;
 		dX = 0.0;
 		dY = 0.0;
-		cos = 0.0;
+	};
+
+	PhysicalObject(int MouseX, int MouseY, float InputMass)
+	{
+		Id = IdCounter++;
+		IsInitialized = true;
+		Mass = InputMass;
+		Size = 1;
+		X = MouseX;
+		Y = MouseY;
+		dX = 0.0;
+		dY = 0.0;
 	};
 
 	PhysicalObject(int MouseX, int MouseY, float InputMass, float InputSize)
@@ -52,25 +63,24 @@ public:
 		Y = MouseY;
 		dX = 0.0;
 		dY = 0.0;
-		cos = 0.0;
 	};
 
-	float GetX()
+	const float GetX()
 	{
 		return X;
 	}
 
-	float GetY()
+	const float GetY()
 	{
 		return Y;
 	}
 
-	float GetdX()
+	const float GetdX()
 	{
 		return dX;
 	}
 
-	float GetdY()
+	const float GetdY()
 	{
 		return dY;
 	}
@@ -91,9 +101,15 @@ public:
 		Y = NewY;
 	}
 
-	int GetID()
+	const int GetID()
 	{
 		return Id;
+	}
+
+
+	void DecrID()
+	{
+		Id--;
 	}
 
 	void Echo()
@@ -105,7 +121,7 @@ public:
 			<< " at [" << X << ", " << Y << "]." << std::endl;
 	}
 
-	bool Init()
+	const bool Init()
 	{
 		return IsInitialized;
 	}
@@ -115,17 +131,17 @@ public:
 		IsInitialized = true;
 	}
 
-	float GetSize()
+	const float GetSize()
 	{
 		return Size;
 	}
 
-	float GetMass()
+	const float GetMass()
 	{
 		return Mass;
 	}
 
-	void ShowInfo()
+	const void ShowInfo()
 	{
 		std::cout << "Physical object with"
 			<< " ID " << Id
@@ -136,7 +152,16 @@ public:
 			<< std::endl;
 	}
 
+	void MergeWith(PhysicalObject iObject)
+	{
+		Mass += iObject.Mass;
+		Size += iObject.Size;
+		dX = (dX + iObject.dX) / 2;
+		dY = (dY + iObject.dY) / 2;
+	}
+
 	~PhysicalObject()
 	{
+		Id = -1;
 	};
 };

@@ -11,7 +11,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <deque>
-
+#include "Console.h"
 
 
 //Глобальные переменные
@@ -22,19 +22,22 @@ int g_iWindowHeight = 600;        //Высота окна
 bool g_bApplicationState = true;    //Состояние приложения (true - работает/false - не работает)
 IDirect3D9* g_pD3D = NULL;      //Интерфейс для создания устройства рендеринга
 IDirect3DDevice9* d3dDevice = NULL;  //Интерфейс устройства рендеринга
-
+int timescale = 5000;
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int iCmdShow); //Точка старта приложения
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);//Обработчик сообщений
 bool InitDirect3D(D3DFORMAT ColorFormat, D3DFORMAT DepthFormat);    //Инициализация Direct3D
-void DrawFrame();
+void DrawFrame(std::vector<PhysicalObject*> ObjectReg);
 void Shutdown();
 
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int iCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int(nShowCmd))
 {
+
+    CallConsole();
+
     g_hInstance = GetModuleHandle(NULL);
 
     WNDCLASSEX wc;
@@ -95,15 +98,64 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     MSG msg;
     ZeroMemory(&msg, sizeof(msg));
 
+    std::vector<PhysicalObject*> ObjectReg;
+    int particleCount = 100;
+
+    srand(clock());
+
+    for (int i = 0; i < particleCount; ++i)
+    {
+        float randX = rand() % g_iWindowWidth;
+        float randY = rand() % g_iWindowWidth;
+        float randMass = rand() % 100 * 100;
+        ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, 1));
+    }
+
     while (g_bApplicationState)
     {
-        if (PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE | PM_NOYIELD))
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            bool fHandled = false;
+            //if (msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST)
+            //   fHandled = MyHandleMouseEvent(&msg);
+            if (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST)
+            {
+                switch (msg.message)
+                {
+                case 37:
+                    timescale /= 2;
+                    fHandled = true;
+                    break;
+                case 39:
+                    timescale *= 2;
+                    fHandled = true;
+                    break;
+                default:
+                    fHandled = false;
+                    break;
+                }
+            }
+            else if (WM_QUIT == msg.message)
+                break;
+
+            if (!fHandled)
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
+        else if (ObjectReg.size() > 0)
+        {
+            UpdatePhysics(ObjectReg, timescale);
+            DrawFrame(ObjectReg);
         }
         else
-            DrawFrame();
+        {
+            Shutdown();
+            MessageBox(NULL, L"Object array is empty!", L"Error", MB_OK | MB_ICONERROR);
+            return 0;
+        };
+
     }
 
     Shutdown();
@@ -167,7 +219,7 @@ bool InitDirect3D(D3DFORMAT ColorFormat, D3DFORMAT DepthFormat)
 
 }
 
-void DrawFrame()
+void DrawFrame(std::vector<PhysicalObject*> ObjectReg)
 {
     //HRESULT hr = d3dDevice->TestCooperativeLevel();
 
@@ -197,54 +249,34 @@ void DrawFrame()
     d3dDevice->SetTransform(D3DTS_VIEW, &matrixView);
     d3dDevice->SetTransform(D3DTS_PROJECTION, &matrixProjection);
 
-    srand(clock());
-
-    struct Particle
-    {
-        float x, y, vx, vy;
-    };
-    std::deque<Particle> particles;
-    Particle tmp;
-    int particleCount = 10;
-
-    for (int i = 0; i < particleCount; ++i)
-    {
-        tmp.x = rand() % g_iWindowWidth;
-        tmp.y = rand() % g_iWindowHeight;
-
-        particles.push_back(tmp);
-    }
-
     LPDIRECT3DVERTEXBUFFER9 pVertexObject = NULL;
     LPDIRECT3DVERTEXDECLARATION9 vertexDecl = NULL;
 
     struct VertexData
     {
-        float x, y, z, u, v;
+        float x, y, z;
     };
 
-    size_t count = particles.size();
+    size_t count = ObjectReg.size();
     VertexData* vertexData = new VertexData[count];
 
     for (size_t i = 0; i < count; ++i)
     {
-        vertexData[i].x = particles[i].x;
-        vertexData[i].y = particles[i].y;
+        vertexData[i].x = ObjectReg[i]->GetX();
+        vertexData[i].y = ObjectReg[i]->GetY();
         vertexData[i].z = 0.f;
-        vertexData[i].u = 0;
-        vertexData[i].v = 0;
     }
 
     void* pVertexBuffer = NULL;
 
     //Создание вершинного буфера
-    if(FAILED(d3dDevice->CreateVertexBuffer(
+    if(FAILED((d3dDevice->CreateVertexBuffer(
         count * sizeof(VertexData),
         D3DUSAGE_WRITEONLY,
         D3DFVF_XYZ,
         D3DPOOL_DEFAULT,
         &pVertexObject,
-        NULL)))
+        NULL))))
     {
         Shutdown();
         MessageBox(NULL, L"Can`t create vertex buffer", L"Error", MB_OK | MB_ICONERROR);
@@ -277,7 +309,7 @@ void DrawFrame()
 
 
 
-    d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
+    d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
 
     // Устанавливаем источник вершин
     d3dDevice->SetStreamSource(0, pVertexObject, 0, sizeof(VertexData));
@@ -288,7 +320,7 @@ void DrawFrame()
 
     if (FAILED(d3dDevice->DrawPrimitive(D3DPRIMITIVETYPE::D3DPT_POINTLIST,
         0,
-        particles.size())))
+        ObjectReg.size())))
     {
         Shutdown();
         MessageBox(NULL, L"Can`t create vertex declaration", L"Error", MB_OK | MB_ICONERROR);
@@ -319,24 +351,3 @@ void Shutdown()
     if (!UnregisterClass(L"UniverseD3D", g_hInstance))
         g_hInstance = NULL;
 }
-
-
-//Код для рендера через SFML
-/*
-int main()
-{
-    
-    sf::RenderWindow window(sf::VideoMode(ScreenWidth, ScreenHeight), "Universe Simulator");
-    std::vector<PhysicalObject*> ObjectReg;
-
-    while (window.isOpen())
-    {
-        UpdatePhysics(ObjectReg);
-        RenderScene(window, ObjectReg);
-        //for (auto iObject : ObjectReg)
-        //    iObject->ShowInfo();
-    }
-    
-    return 0;
-}
-*/
