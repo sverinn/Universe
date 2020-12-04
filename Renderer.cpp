@@ -1,3 +1,4 @@
+/*
 #include "DrawContent.h"
 #include "Window.h"
 #include <SFML/Graphics.hpp>
@@ -12,7 +13,7 @@ sf::RenderWindow InitializeRenderer()
     
     return window;
 };
-*/
+
 
 
 
@@ -118,3 +119,4 @@ static void RenderMenu(bool Main)
 
     }
 };
+*/

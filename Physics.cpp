@@ -1,7 +1,6 @@
 #include "Constants.h"
 #include "ObjectHandler.h"
 #include <vector>
-#include <SFML/System/Sleep.hpp>
 #include <cmath>
 
 float Force(const float &m1, const float &m2, const float &r)
@@ -80,7 +79,7 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 
 			std::cout << "RadX: " << FindAccX(TargetObject, *iObject) / FindAccY(TargetObject, *iObject) / Radius << " RadY: " << FindAccY(TargetObject, *iObject) / FindAccX(TargetObject, *iObject) / Radius << std::endl;
 			dX = cos(FindAccX(TargetObject, *iObject)/ FindAccY(TargetObject, *iObject)/Radius)*timescale;
-			dY = sin(FindAccY(TargetObject, *iObject)/ FindAccX(TargetObject, *iObject)/Radius)*timescale;
+			dY = cos(FindAccY(TargetObject, *iObject)/ FindAccX(TargetObject, *iObject)/Radius)*timescale;
 			std::cout << "Acceleration of object with ID " << TargetObject.GetID()
 				<< " towards the object with ID " << iObject->GetID()
 				<< " is dX: " << dX << " dY: " << dY
@@ -114,6 +113,5 @@ void UpdatePhysics(std::vector<PhysicalObject*> &ObjectArray)
 		{
 			MoveObject(*iObject, ObjectArray);
 			//std::cout << "Physics updated." << std::endl;
-			//sf::sleep(sf::milliseconds(1/timescale));
 		}
 };
