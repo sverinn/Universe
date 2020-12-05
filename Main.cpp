@@ -12,133 +12,159 @@
 #include <d3dx9.h>
 #include <deque>
 #include "Console.h"
+#include <string>
+#include <thread>
+#include <mutex>
 
 
 //Глобальные переменные
 HINSTANCE g_hInstance = NULL;      //Дескриптор приложения
 HWND g_hWnd = NULL;            //Дескриптор окна
-int g_iWindowWidth = 800;        //Ширина окна
-int g_iWindowHeight = 600;        //Высота окна
+int g_iWindowWidth = 1024;        //Ширина окна
+int g_iWindowHeight = 768;        //Высота окна
 bool g_bApplicationState = true;    //Состояние приложения (true - работает/false - не работает)
 IDirect3D9* g_pD3D = NULL;      //Интерфейс для создания устройства рендеринга
 IDirect3DDevice9* d3dDevice = NULL;  //Интерфейс устройства рендеринга
-int timescale = 5000;
-
+int timescale = 1000000;
+bool ShowConsole = false;
+int DeviceCoreCount = std::thread::hardware_concurrency();
+bool keys[256];
+int ParallelMode = 2;
+double Scale = 1e-7;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int iCmdShow); //Точка старта приложения
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);//Обработчик сообщений
 bool InitDirect3D(D3DFORMAT ColorFormat, D3DFORMAT DepthFormat);    //Инициализация Direct3D
 void DrawFrame(std::vector<PhysicalObject*> ObjectReg);
 void Shutdown();
+void DebugEcho(std::vector<PhysicalObject*> ObjectReg);
+double eps(double value);
 
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int(nShowCmd))
 {
+    
+        if (ShowConsole)
+            CallConsole();
 
-    CallConsole();
+        g_hInstance = GetModuleHandle(NULL);
 
-    g_hInstance = GetModuleHandle(NULL);
-
-    WNDCLASSEX wc;
-    wc.cbSize = sizeof(WNDCLASSEX);
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = WndProc;              //Функция обработки сообщений
-    wc.cbClsExtra = 0;
-    wc.cbWndExtra = 0;
-    wc.hInstance = g_hInstance;            //Дескриптор приложения
-    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor = LoadCursor(0, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-    wc.lpszMenuName = 0;
-    wc.lpszClassName = L"UniverseD3Dx";
-    wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+        WNDCLASSEX wc;
+        wc.cbSize = sizeof(WNDCLASSEX);
+        wc.style = CS_HREDRAW | CS_VREDRAW;
+        wc.lpfnWndProc = WndProc;              //Функция обработки сообщений
+        wc.cbClsExtra = 0;
+        wc.cbWndExtra = 0;
+        wc.hInstance = g_hInstance;            //Дескриптор приложения
+        wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+        wc.hCursor = LoadCursor(0, IDC_ARROW);
+        wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+        wc.lpszMenuName = 0;
+        wc.lpszClassName = L"UniverseD3Dx";
+        wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
 
-    if (!RegisterClassEx(&wc))
-    {
-        Shutdown();
-        MessageBox(NULL, L"Can`t register window class", L"Error", MB_OK | MB_ICONERROR);
-        return 0;
-    }
+        if (!RegisterClassEx(&wc))
+        {
+            Shutdown();
+            MessageBox(NULL, L"Can`t register window class", L"Error", MB_OK | MB_ICONERROR);
+            return 0;
+        }
 
-    g_hWnd = CreateWindowExW(
-        WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-        L"UniverseD3Dx",
-        L"UniverseD3D - Window",
-        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-        0,
-        0,
-        g_iWindowWidth,
-        g_iWindowHeight,
-        NULL,
-        NULL,
-        g_hInstance,
-        NULL);
+        g_hWnd = CreateWindowExW(
+            WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
+            L"UniverseD3Dx",
+            L"UniverseD3D - Window",
+            WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+            0,
+            0,
+            g_iWindowWidth,
+            g_iWindowHeight,
+            NULL,
+            NULL,
+            g_hInstance,
+            NULL);
 
-    if (g_hWnd == NULL)
-    {
-        Shutdown();
-        MessageBox(NULL, L"Can`t create window", L"Error", MB_OK | MB_ICONERROR);
-        return 0;
-    }
+        if (g_hWnd == NULL)
+        {
+            Shutdown();
+            MessageBox(NULL, L"Can`t create window", L"Error", MB_OK | MB_ICONERROR);
+            return 0;
+        }
 
-    if (!(InitDirect3D(D3DFMT_R5G6B5, D3DFMT_D16)))
-    {
-        Shutdown();
-        MessageBox(NULL, L"Can`t create direct3d", L"Error", MB_OK | MB_ICONERROR);
-        return 0;
-    }
+        if (!(InitDirect3D(D3DFMT_R5G6B5, D3DFMT_D16)))
+        {
+            Shutdown();
+            MessageBox(NULL, L"Can`t create direct3d", L"Error", MB_OK | MB_ICONERROR);
+            return 0;
+        }
 
-    ShowWindow(g_hWnd, SW_SHOW);
-    UpdateWindow(g_hWnd);
-    SetFocus(g_hWnd);
-    SetForegroundWindow(g_hWnd);
+        ShowWindow(g_hWnd, SW_SHOW);
+        UpdateWindow(g_hWnd);
+        SetFocus(g_hWnd);
+        SetForegroundWindow(g_hWnd);
 
-    MSG msg;
-    ZeroMemory(&msg, sizeof(msg));
-
+        MSG msg;
+        ZeroMemory(&msg, sizeof(msg));
+    
     std::vector<PhysicalObject*> ObjectReg;
-    int particleCount = 100;
+    int particleCount = 200;
 
     srand(clock());
 
+
+    /*
+    ObjectReg.push_back(new PhysicalObject(10.0, 384.0, SolarMass * Scale, eps(SolarRadius * Scale), 0, 0));
+    ObjectReg[0]->ShowInfo();
+    ObjectReg.push_back(new PhysicalObject(10.0 + (SolarRadius + EarthSunDistance + EarthRadius) * Scale, 384.0, EarthMass * Scale, eps(EarthRadius * Scale), 0, eps(EarthSunVelocity * Scale)));
+    ObjectReg[1]->ShowInfo();
+    */
+
+    
     for (int i = 0; i < particleCount; ++i)
     {
-        float randX = rand() % g_iWindowWidth;
-        float randY = rand() % g_iWindowWidth;
-        float randMass = rand() % 100 * 100;
-        ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, 1));
+        
+        double randX = 1 + rand() % g_iWindowWidth;
+        double randY = 1 + rand() % g_iWindowHeight;
+        double randMass = 10 + rand() % 100 * 100;
+        //double randMass = 10000;
+        if (i > 0)
+        while (fabs(ObjectReg[i - 1]->GetX() - randX) < 1 && fabs(ObjectReg[i - 1]->GetY() - randY) < 1)
+        {
+            randX = rand() % g_iWindowWidth;
+            randY = rand() % g_iWindowHeight;
+            randMass = 10 + rand() % 100 * 100;
+            //randMass = 10000;
+        }
+        if (randX > g_iWindowWidth / 2)
+            ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, sqrtf(randMass) / 20, 0, 0));
+        else
+            ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, sqrtf(randMass) / 20, 0, 0));
     }
-
+    
     while (g_bApplicationState)
     {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE | PM_NOYIELD))
+        
+        //if (rand()%173 == 0)
+        //if (std::to_string(ObjectReg[1]->GetX()) == "-nan(ind)")
+        //{
+        //    return -1;
+        //}
+
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
+            /*
             bool fHandled = false;
             //if (msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST)
-            //   fHandled = MyHandleMouseEvent(&msg);
+               fHandled = MyHandleMouseEvent(&msg);
             if (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST)
             {
-                switch (msg.message)
-                {
-                case 37:
-                    timescale /= 2;
-                    fHandled = true;
-                    break;
-                case 39:
-                    timescale *= 2;
-                    fHandled = true;
-                    break;
-                default:
-                    fHandled = false;
-                    break;
-                }
             }
             else if (WM_QUIT == msg.message)
                 break;
-
             if (!fHandled)
+            */
             {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
@@ -146,8 +172,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         else if (ObjectReg.size() > 0)
         {
-            UpdatePhysics(ObjectReg, timescale);
-            DrawFrame(ObjectReg);
+            if (keys[37])
+                timescale /= 2;
+            if (keys[39])
+                timescale *= 2;
+            if (ParallelMode == 1)
+            {
+                //std::thread PhysicsThread(UpdatePhysics, std::ref(ObjectReg), timescale);
+                std::thread GraphicsThread(DrawFrame, ObjectReg);
+                std::thread ConsoleThread(DebugEcho, ObjectReg);
+                GraphicsThread.join();
+                //PhysicsThread.join();
+                ConsoleThread.join();
+            }
+            else if (ShowConsole)
+            {
+                std::thread ConsoleThread(DebugEcho, ObjectReg);
+                UpdatePhysics(ObjectReg, timescale);
+                DrawFrame(ObjectReg);
+                ConsoleThread.join();
+            }
+            else
+            {
+                UpdatePhysics(ObjectReg, timescale);
+                DrawFrame(ObjectReg);
+            }
         }
         else
         {
@@ -172,6 +221,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
         g_bApplicationState = false;
         return 0;
     }
+
     }
 
     return DefWindowProc(hWnd, iMsg, wParam, lParam);
@@ -207,8 +257,9 @@ bool InitDirect3D(D3DFORMAT ColorFormat, D3DFORMAT DepthFormat)
         &d3dDevice)))
         return true;
 
-    d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);  // Мы не будем использовать освещение
+    d3dDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_RGBA(255, 255, 255, 255));  //Ambient light level = 1
     d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE); // И буфер глубины тоже
+    d3dDevice->SetRenderState(D3DRS_POINTSCALEENABLE, TRUE);
 
     /*
     if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_hWnd,
@@ -219,10 +270,12 @@ bool InitDirect3D(D3DFORMAT ColorFormat, D3DFORMAT DepthFormat)
 
 }
 
+std::mutex GraphicsThreadMutex;
+
 void DrawFrame(std::vector<PhysicalObject*> ObjectReg)
 {
     //HRESULT hr = d3dDevice->TestCooperativeLevel();
-
+    GraphicsThreadMutex.lock();
     if (d3dDevice->TestCooperativeLevel() == D3DERR_DEVICELOST)
         return;
 
@@ -249,70 +302,18 @@ void DrawFrame(std::vector<PhysicalObject*> ObjectReg)
     d3dDevice->SetTransform(D3DTS_VIEW, &matrixView);
     d3dDevice->SetTransform(D3DTS_PROJECTION, &matrixProjection);
 
+
+
     LPDIRECT3DVERTEXBUFFER9 pVertexObject = NULL;
     LPDIRECT3DVERTEXDECLARATION9 vertexDecl = NULL;
+    void* pVertexBuffer = nullptr;
+    
+    size_t Stride = RenderPointlist(d3dDevice, pVertexObject, vertexDecl, pVertexBuffer, ObjectReg);
 
-    struct VertexData
-    {
-        float x, y, z;
-    };
-
-    size_t count = ObjectReg.size();
-    VertexData* vertexData = new VertexData[count];
-
-    for (size_t i = 0; i < count; ++i)
-    {
-        vertexData[i].x = ObjectReg[i]->GetX();
-        vertexData[i].y = ObjectReg[i]->GetY();
-        vertexData[i].z = 0.f;
-    }
-
-    void* pVertexBuffer = NULL;
-
-    //Создание вершинного буфера
-    if(FAILED((d3dDevice->CreateVertexBuffer(
-        count * sizeof(VertexData),
-        D3DUSAGE_WRITEONLY,
-        D3DFVF_XYZ,
-        D3DPOOL_DEFAULT,
-        &pVertexObject,
-        NULL))))
-    {
-        Shutdown();
-        MessageBox(NULL, L"Can`t create vertex buffer", L"Error", MB_OK | MB_ICONERROR);
-        return;
-    };
-
-    // Блокировка буфера, чтобы записать туда данные о вершинах
-    pVertexObject->Lock(0, count * sizeof(VertexData), &pVertexBuffer, 0);
-
-    memcpy(pVertexBuffer, vertexData, count * sizeof(VertexData));
-
-    pVertexObject->Unlock();
-
-    delete[] vertexData;
-    vertexData = nullptr;
-
-    D3DVERTEXELEMENT9 decl[] =
-    {
-        { 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
-        D3DDECL_END()
-    };
-
-    // Создаем объект с описанием вершин
-    if (FAILED(d3dDevice->CreateVertexDeclaration(decl, &vertexDecl)))
-    {
-            Shutdown();
-            MessageBox(NULL, L"Can`t create vertex declaration", L"Error", MB_OK | MB_ICONERROR);
-            return;
-    };
-
-
-
-    d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
+    d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(150, 150, 150), 1.0f, 0);
 
     // Устанавливаем источник вершин
-    d3dDevice->SetStreamSource(0, pVertexObject, 0, sizeof(VertexData));
+    d3dDevice->SetStreamSource(0, pVertexObject, 0, Stride);
     // Указываем, что хранится в буфере
     d3dDevice->SetVertexDeclaration(vertexDecl);
 
@@ -329,6 +330,7 @@ void DrawFrame(std::vector<PhysicalObject*> ObjectReg)
 
     d3dDevice->EndScene();
     d3dDevice->Present(NULL, NULL, NULL, NULL);
+    GraphicsThreadMutex.unlock();
 }
 
 void Shutdown()
@@ -351,3 +353,20 @@ void Shutdown()
     if (!UnregisterClass(L"UniverseD3D", g_hInstance))
         g_hInstance = NULL;
 }
+
+void DebugEcho(std::vector<PhysicalObject*> ObjectReg)
+{
+    for (int i = 0; i < ObjectReg.size(); i++)
+    {
+        ObjectReg[i]->ShowInfo();
+    }
+}
+
+
+double eps(double value)
+{
+    if (abs(value) < EPS)
+        return 0.0;
+    else
+        return value;
+};
