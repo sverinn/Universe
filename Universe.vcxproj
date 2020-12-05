@@ -184,6 +184,7 @@
     <ClInclude Include="Console.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DrawContent.h" />
+    <ClInclude Include="EventHandler.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="ObjectHandler.h" />
     <ClInclude Include="Physics.h" />

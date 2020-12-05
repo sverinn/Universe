@@ -1,26 +1,25 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include "Constants.h"
 
-static int IdCounter = 0;
+static int IDCounter = 0;
 
 static class PhysicalObject
 {
 private:
-	int Id;
-	bool IsInitialized;
-	float Mass;
-	float Size;
-	float X;
-	float Y;
-	float dX;
-	float dY;
+	int ID;
+	double Mass;
+	double Size;
+	double X;
+	double Y;
+	double dX;
+	double dY;
 public:
 
 	PhysicalObject()
 	{
-		Id = IdCounter++;
-		IsInitialized = false;
+		ID = IDCounter++;
 		Mass = 1;
 		Size = 1;
 		X = 0.0;
@@ -29,10 +28,9 @@ public:
 		dY = 0.0;
 	};
 
-	PhysicalObject(int MouseX, int MouseY)
+	PhysicalObject(double MouseX, double MouseY)
 	{
-		Id = IdCounter++;
-		IsInitialized = true;
+		ID = IDCounter++;
 		Mass = 1000000;
 		Size = 1;
 		X = MouseX;
@@ -41,10 +39,9 @@ public:
 		dY = 0.0;
 	};
 
-	PhysicalObject(int MouseX, int MouseY, float InputMass)
+	PhysicalObject(double MouseX, double MouseY, double InputMass)
 	{
-		Id = IdCounter++;
-		IsInitialized = true;
+		ID = IDCounter++;
 		Mass = InputMass;
 		Size = 1;
 		X = MouseX;
@@ -53,10 +50,9 @@ public:
 		dY = 0.0;
 	};
 
-	PhysicalObject(int MouseX, int MouseY, float InputMass, float InputSize)
+	PhysicalObject(double MouseX, double MouseY, double InputMass, double InputSize)
 	{
-		Id = IdCounter++;
-		IsInitialized = true;
+		ID = IDCounter++;
 		Mass = InputMass;
 		Size = InputSize;
 		X = MouseX;
@@ -65,78 +61,83 @@ public:
 		dY = 0.0;
 	};
 
-	const float GetX()
+	PhysicalObject(double MouseX, double MouseY, double InputMass, double InputSize, double InputdX, double InputdY)
+	{
+		ID = IDCounter++;
+		Mass = InputMass;
+		Size = InputSize;
+		X = MouseX;
+		Y = MouseY;
+		dX = InputdX;
+		dY = InputdY;
+	};
+
+	const double GetX()
 	{
 		return X;
 	}
 
-	const float GetY()
+	const double GetY()
 	{
 		return Y;
 	}
 
-	const float GetdX()
+	const double GetdX()
 	{
 		return dX;
 	}
 
-	const float GetdY()
+	const double GetdY()
 	{
 		return dY;
 	}
 
-	void SetAcc(float NewdX, float NewdY)
+	void SetAcc(double NewdX, double NewdY)
 	{
-		dX = NewdX;
-		dY = NewdY;
+		if (abs(NewdX) < 299792458.0 && abs(dX - NewdX) >= EPS)
+			dX = NewdX;
+		if (abs(NewdY) < 299792458.0 && abs(dY - NewdY) >= EPS)
+			dX = NewdY;
 	}
 
-	void SetX(float NewX)
+	void SetX(double NewX)
 	{
-		X = NewX;
+		if (!isinf(NewX) && abs(X - NewX) >= EPS)
+			X = NewX;
 	}
 
-	void SetY(float NewY)
+	void SetY(double NewY)
 	{
-		Y = NewY;
+		if (!isinf(NewY) && abs(Y - NewY) >= EPS)
+			Y = NewY;
 	}
 
 	const int GetID()
 	{
-		return Id;
+		return ID;
 	}
 
 
 	void DecrID()
 	{
-		Id--;
+		ID--;
 	}
 
 	void Echo()
 	{
 		std::cout << "Created object instance with"
-			<< " ID " << Id
+			<< " ID " << ID
 			<< ", Mass = " << Mass
 			<< ", Size = " << Size
 			<< " at [" << X << ", " << Y << "]." << std::endl;
 	}
 
-	const bool Init()
-	{
-		return IsInitialized;
-	}
-
-	void Initialize()
-	{
-		IsInitialized = true;
-	}
-
-	const float GetSize()
+	const double GetSize()
 	{
 		return Size;
 	}
 
-	const float GetMass()
+	const double GetMass()
 	{
 		return Mass;
 	}
@@ -144,11 +145,12 @@ public:
 	const void ShowInfo()
 	{
 		std::cout << "Physical object with"
-			<< " ID " << Id
+			<< " ID " << ID
 			<< ", Mass = " << Mass
 			<< ", Size = " << Size
-			<< " at [" << X << ", " << Y << "]." 
+			<< " at [" << X << ", " << Y << "]."
 			<< " dX = " << dX << ", dY = " << dY
+			<< ", vertex at [" << (float)X << ", " << (float)Y << "]."
 			<< std::endl;
 	}
 
@@ -162,6 +164,6 @@ public:
 
 	~PhysicalObject()
 	{
-		Id = -1;
+		ID = -1;
 	};
 };

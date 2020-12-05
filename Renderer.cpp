@@ -1,122 +1,84 @@
-/*
-#include "DrawContent.h"
-#include "Window.h"
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <iostream>
-#include "TimeSystem.h"
+#include <Windows.h>
+#include <vector>
 #include "ObjectHandler.h"
+#include "EventHandler.h"
+#include <d3dx9.h>
 
-/*
-sf::RenderWindow InitializeRenderer()
+size_t RenderPointlist(
+    IDirect3DDevice9*& d3dDevice,
+    LPDIRECT3DVERTEXBUFFER9& pVertexObject,
+    LPDIRECT3DVERTEXDECLARATION9& vertexDecl,
+    void*& pVertexBuffer,
+    std::vector<PhysicalObject*>& ObjectReg)
 {
-    
-    return window;
-};
 
 
-
-
-void RenderScene(sf::RenderWindow &targetWindow, std::vector<PhysicalObject*> &ObjectReg)
-{
-    sf::Event event;
-    while (targetWindow.pollEvent(event))
+    struct VertexData
     {
-        if (event.type == sf::Event::Closed)
-        {
-            targetWindow.close();
-        }
+        D3DXVECTOR3 XYZ = { NULL, NULL, NULL };
+        float r = NULL;
+        D3DCOLOR RGB = { NULL };
+    };
 
-        if (event.type == sf::Event::MouseButtonPressed)
-        {
-            if (event.mouseButton.button == sf::Mouse::Right)
-            {
-                std::cout << "Creating an object" << std::endl;
-                std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-                std::cout << "mouse y: " << event.mouseButton.y << std::endl;
-                //PhysicalObject Object(event.mouseButton.x, event.mouseButton.y);
-                ObjectReg.push_back(new PhysicalObject(event.mouseButton.x, event.mouseButton.y));
-                //sf::CircleShape
-            }
-        }
+    size_t count = ObjectReg.size();
+    VertexData* vertexData = new VertexData[count];
 
-        if (event.type == sf::Event::KeyPressed)
-        {
-            //if (event.key.code == sf::Keyboard::Space)
+    /*
+    float totalRadius = 0;
 
-            if (event.key.code == sf::Keyboard::Enter)
-            {
-                std::cout << "Input: " << std::endl;
-                    std::string inputString;
-                    std::cin >> inputString;
-                    if (inputString == "list_objects")
-                    {
-                        std::cout << "There are " << ObjectReg.size() << " objects in the world." << std::endl;
-                            for (auto i = 0; i < ObjectReg.size(); i++)
-                                ObjectReg[i]->ShowInfo();
-                    }
-            }
-        }
+    for (int i = 0; i < count; i++)
+        totalRadius += ObjectReg[i]->GetSize();
+
+    int totalLines = 2 * 3.14 * totalRadius;
+    */
+
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        vertexData[i].XYZ = { (float)ObjectReg[i]->GetX(), (float)ObjectReg[i]->GetY(), 0.f };
+        vertexData[i].r = (float)ObjectReg[i]->GetSize();
+        vertexData[i].RGB = D3DCOLOR_XRGB(255,255,255);
     }
 
-    sf::Font font;
-    if (!font.loadFromFile("arial.ttf"))
+    //Создание вершинного буфера
+    if (FAILED((d3dDevice->CreateVertexBuffer(
+        count * sizeof(VertexData),
+        D3DUSAGE_WRITEONLY,
+        D3DFVF_XYZW | D3DFVF_DIFFUSE,
+        D3DPOOL_MANAGED,
+        &pVertexObject,
+        NULL))))
     {
-        std::cout << "Can't load the font";
-    }
+        MessageBox(NULL, L"Can`t create vertex buffer", L"Error", MB_OK | MB_ICONERROR);
+        return 0;
+    };
 
-    sf::Text TickCounter;
-    TickCounter.setFont(font);
-    TickCounter.setCharacterSize(10);
-    TickCounter.setFillColor(sf::Color::Green);
-    TickCounter.setString(std::to_string(WorldTick()));
+    // Блокировка буфера, чтобы записать туда данные о вершинах
+    pVertexObject->Lock(0, count * sizeof(VertexData), &pVertexBuffer, 0);
 
-    //std::vector<sf::CircleShape> ObjectRenderArray;
-    targetWindow.clear();
-    for (auto i = 0; i < ObjectReg.size(); i++)
+    memcpy(pVertexBuffer, vertexData, count * sizeof(VertexData));
+
+    pVertexObject->Unlock();
+
+    delete[] vertexData;
+    vertexData = nullptr;
+
+    D3DVERTEXELEMENT9 decl[] =
     {
-        // if (!ObjectReg[i]->Init())
-        {
-            sf::CircleShape newSprite;
-            //ObjectRenderArray.push_back(newSprite);
-            //int radius = ObjectReg[i]->GetSize();
-            newSprite.setRadius(ObjectReg[i]->GetSize());
-            newSprite.setFillColor(sf::Color(200, 200, 200));
-            newSprite.setPosition(ObjectReg[i]->GetX(), ObjectReg[i]->GetY());
-            
-            sf::Text ObjectInfo;
-            ObjectInfo.setFont(font);
-            ObjectInfo.setCharacterSize(10);
-            ObjectInfo.setFillColor(sf::Color::Green);
-            ObjectInfo.setPosition(ObjectReg[i]->GetX(), ObjectReg[i]->GetY() - 20);
-            ObjectInfo.setString("ID: " + std::to_string(ObjectReg[i]->GetID())
-                + ", Mass = " + std::to_string(ObjectReg[i]->GetMass())
-                + ", dX = " + std::to_string(ObjectReg[i]->GetdX())
-                + ", dY = " + std::to_string(ObjectReg[i]->GetdY()));
+        { 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+        { 0, 12, D3DDECLTYPE_FLOAT1, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_PSIZE, 0 },
+        { 0, 16, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0 },
+        D3DDECL_END()
+    };
 
-            sf::Vertex VectorLine[] =
-            {
-                sf::Vertex(sf::Vector2f(ObjectReg[i]->GetX() + (ObjectReg[i]->GetSize()), ObjectReg[i]->GetY() + (ObjectReg[i]->GetSize()))),
-                sf::Vertex(sf::Vector2f(ObjectReg[i]->GetX() + (ObjectReg[i]->GetSize()) + (ObjectReg[i]->GetdX() * 100)*10, ObjectReg[i]->GetY() + (ObjectReg[i]->GetSize()) + (ObjectReg[i]->GetdY() * 100)*10))
-            };
 
-            VectorLine->color = sf::Color::Red;
 
-            targetWindow.draw(newSprite);
-            targetWindow.draw(ObjectInfo);
-            targetWindow.draw(VectorLine, 2, sf::Lines);
-        }
-    }
-    targetWindow.draw(TickCounter);
-    targetWindow.display();
-
-};
-
-static void RenderMenu(bool Main)
-{
-    if (Main)
+    // Создание объекта с описанием вершин
+    if (FAILED(d3dDevice->CreateVertexDeclaration(decl, &vertexDecl)))
     {
+        MessageBox(NULL, L"Can`t create vertex declaration", L"Error", MB_OK | MB_ICONERROR);
+        return 0;
+    };
 
-    }
-};
-*/
+    return sizeof(VertexData);
+}
