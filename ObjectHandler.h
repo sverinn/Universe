@@ -3,18 +3,19 @@
 #include <vector>
 #include "Constants.h"
 
+
 static int IDCounter = 0;
 
 static class PhysicalObject
 {
 private:
 	int ID;
-	double Mass;
-	double Size;
-	double X;
-	double Y;
-	double dX;
-	double dY;
+	CType Mass;
+	CType Size;
+	CType X;
+	CType Y;
+	CType dX;
+	CType dY;
 public:
 
 	PhysicalObject()
@@ -28,7 +29,7 @@ public:
 		dY = 0.0;
 	};
 
-	PhysicalObject(double MouseX, double MouseY)
+	PhysicalObject(CType MouseX, CType MouseY)
 	{
 		ID = IDCounter++;
 		Mass = 1000000;
@@ -39,7 +40,7 @@ public:
 		dY = 0.0;
 	};
 
-	PhysicalObject(double MouseX, double MouseY, double InputMass)
+	PhysicalObject(CType MouseX, CType MouseY, CType InputMass)
 	{
 		ID = IDCounter++;
 		Mass = InputMass;
@@ -50,7 +51,7 @@ public:
 		dY = 0.0;
 	};
 
-	PhysicalObject(double MouseX, double MouseY, double InputMass, double InputSize)
+	PhysicalObject(CType MouseX, CType MouseY, CType InputMass, CType InputSize)
 	{
 		ID = IDCounter++;
 		Mass = InputMass;
@@ -61,7 +62,7 @@ public:
 		dY = 0.0;
 	};
 
-	PhysicalObject(double MouseX, double MouseY, double InputMass, double InputSize, double InputdX, double InputdY)
+	PhysicalObject(CType MouseX, CType MouseY, CType InputMass, CType InputSize, CType InputdX, CType InputdY)
 	{
 		ID = IDCounter++;
 		Mass = InputMass;
@@ -72,45 +73,52 @@ public:
 		dY = InputdY;
 	};
 
-	const double GetX()
+	const CType GetX()
 	{
 		return X;
 	}
 
-	const double GetY()
+	const CType GetY()
 	{
 		return Y;
 	}
 
-	const double GetdX()
+	const CType GetdX()
 	{
 		return dX;
 	}
 
-	const double GetdY()
+	const CType GetdY()
 	{
 		return dY;
 	}
 
-	void SetAcc(double NewdX, double NewdY)
+	void SetAcc(CType NewdX, CType NewdY)
 	{
-		if (abs(NewdX) < 299792458.0 && abs(dX - NewdX) >= EPS)
+		//if (abs(dX - NewdX) > EPS || abs(dY - NewdY) > EPS) return;
+		//if (abs(NewdX) < 299792458.0)
 			dX = NewdX;
-		if (abs(NewdY) < 299792458.0 && abs(dY - NewdY) >= EPS)
+		//else dX = 299792458.0;
+		//if (abs(NewdY) < 299792458.0)
 			dX = NewdY;
+		//else dY = 299792458.0;
 	}
 
-	void SetX(double NewX)
+	void SetPos(CType NewX, CType NewY)
 	{
-		if (!isinf(NewX) && abs(X - NewX) >= EPS)
+		//if (!isinf(NewX) && abs(X - NewX) > EPS)
 			X = NewX;
-	}
-
-	void SetY(double NewY)
-	{
-		if (!isinf(NewY) && abs(Y - NewY) >= EPS)
+		//if (!isinf(NewY) && abs(Y - NewY) > EPS)
 			Y = NewY;
 	}
+
+	/*
+	void SetY(CType NewY)
+	{
+		if (!isinf(NewY) && abs(Y - NewY) > EPS)
+			Y = NewY;
+	}
+	*/
 
 	const int GetID()
 	{
@@ -132,12 +140,12 @@ public:
 			<< " at [" << X << ", " << Y << "]." << std::endl;
 	}
 
-	const double GetSize()
+	const CType GetSize()
 	{
 		return Size;
 	}
 
-	const double GetMass()
+	const CType GetMass()
 	{
 		return Mass;
 	}

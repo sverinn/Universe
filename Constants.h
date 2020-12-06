@@ -1,5 +1,6 @@
 #pragma once
-const double EPS = 1e-12;
+typedef double CType;
+const double EPS = 1e-24;
 const double G = 6.67448478 * 1e-11;
 const double SolarMass = 1.9885 * 1e30; //Kilogramm
 const double SolarRadius = 6.9551 * 1e8; //Meters
