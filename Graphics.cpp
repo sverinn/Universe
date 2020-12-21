@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include <iostream>
 #include "Graphics.h"
 #include "Resources.h"
@@ -39,8 +39,8 @@ Graphics::Graphics(HWND g_hWnd)
 		&d3dpp,
 		&d3dDevice);
 
-	d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);  // Мы не будем использовать освещение
-	d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE); // И буфер глубины тоже
+	d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);  // пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE); // пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
 	/*
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_hWnd,

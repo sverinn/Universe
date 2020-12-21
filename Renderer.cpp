@@ -1,4 +1,4 @@
-#include <vector>
+п»ї#include <vector>
 #include "Objects.h"
 #include "Graphics.h"
 #include "Resources.h"
@@ -11,7 +11,7 @@ void RenderFrame(Graphics& pGfx, std::vector<PhysicalObject*> ObjectReg)
     if (pGfx.pDevice()->TestCooperativeLevel() == D3DERR_DEVICELOST)
         return;
 
-    // Инициализация матриц
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     D3DXMATRIX matrixView;
     D3DXMATRIX matrixProjection;
 
@@ -20,17 +20,17 @@ void RenderFrame(Graphics& pGfx, std::vector<PhysicalObject*> ObjectReg)
     D3DXVECTOR3 Vector3(0, 1, 0);
 
 
-    // Матрица вида
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     D3DXMatrixLookAtLH(
         &matrixView,
         &Vector1,
         &Vector2,
         &Vector3);
 
-    // Матрица проекции
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     D3DXMatrixOrthoOffCenterLH(&matrixProjection, 0, pGfx.Width(), pGfx.Height(), 0, 0, 255);
 
-    // Установка матриц в качестве текущих
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     pGfx.pDevice()->SetTransform(D3DTS_VIEW, &matrixView);
     pGfx.pDevice()->SetTransform(D3DTS_PROJECTION, &matrixProjection);
 
@@ -57,7 +57,7 @@ void RenderFrame(Graphics& pGfx, std::vector<PhysicalObject*> ObjectReg)
 
     void* pVertexBuffer = NULL;
 
-    //Создание вершинного буфера
+    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     if (FAILED((pGfx.pDevice()->CreateVertexBuffer(
         count * sizeof(VertexData),
         D3DUSAGE_WRITEONLY,
@@ -70,7 +70,7 @@ void RenderFrame(Graphics& pGfx, std::vector<PhysicalObject*> ObjectReg)
         return;
     };
 
-    // Блокировка буфера, чтобы записать туда данные о вершинах
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     pVertexObject->Lock(0, count * sizeof(VertexData), &pVertexBuffer, 0);
 
     memcpy(pVertexBuffer, vertexData, count * sizeof(VertexData));
@@ -88,7 +88,7 @@ void RenderFrame(Graphics& pGfx, std::vector<PhysicalObject*> ObjectReg)
         D3DDECL_END()
     };
 
-    // Создаем объект с описанием вершин
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     if (FAILED(pGfx.pDevice()->CreateVertexDeclaration(decl, &vertexDecl)))
     {
         MessageBox(NULL, L"Can`t create vertex declaration", L"Error", MB_OK | MB_ICONERROR);
@@ -99,9 +99,9 @@ void RenderFrame(Graphics& pGfx, std::vector<PhysicalObject*> ObjectReg)
 
     pGfx.pDevice()->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
-    // Устанавливаем источник вершин
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     pGfx.pDevice()->SetStreamSource(0, pVertexObject, 0, sizeof(VertexData));
-    // Указываем, что хранится в буфере
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     pGfx.pDevice()->SetVertexDeclaration(vertexDecl);
 
     pGfx.pDevice()->BeginScene();

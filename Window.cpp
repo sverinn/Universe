@@ -1,4 +1,4 @@
-#include "Window.h"
+п»ї#include "Window.h"
 
 Window::WindowClass Window::WindowClass::wndClass;
 
@@ -10,10 +10,10 @@ Window::WindowClass::WindowClass()
     wc = {0};
     wc.cbSize = sizeof(WNDCLASSEXW);
     wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = HandleMsgSetup;              //Функция обработки сообщений
+    wc.lpfnWndProc = HandleMsgSetup;              //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
-    wc.hInstance = Instance();            //Дескриптор приложения
+    wc.hInstance = Instance();            //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     wc.hCursor = LoadCursor(0, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
