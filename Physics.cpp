@@ -1,5 +1,5 @@
 #include "Constants.h"
-#include "ObjectHandler.h"
+#include "Objects.h"
 #include <vector>
 #include <mutex>
 
@@ -9,38 +9,20 @@ inline CType Force(const CType M1, const CType M2, const CType DistSq, const CTy
 {
 	if (DistSq < (SizeSum * SizeSum))
 		return -(G * M1 * M2 / (SizeSum * SizeSum)) / M1;
+	//if (DistSq < 1)
+		//return 0;
 	else
-		return G * M1 * M2 / DistSq;
+		return (G * M1 * M2) / DistSq;
 };
 
-inline CType DistSq(CType X1, CType Y1, CType X2, CType Y2)
+inline CType DistSq(const CType X1, const CType Y1, const CType X2, const CType Y2)
 {
-	return ((X2 - X1) * (X2 - X1) + (Y2 - Y1) * (Y2 - Y1));
+	return (powf((X2 - X1), 2) + powf((Y2 - Y1), 2));
 };
-
-/*
-float FindAcc(PhysicalObject Obj1, PhysicalObject Obj2)
-{
-	//for (auto i = 0; i < ObjectArray.size() - 1; i++)
-	//{
-		float Radius = sqrt(powf((Obj1.GetX() - Obj2.GetX()), 2) + powf((Obj1.GetY() - Obj2.GetY()), 2));
-		float iForce = Force(Obj1.GetMass(), Obj2.GetMass(), Radius);
-		return Acc(iForce, Obj1.GetMass());
-	//}
-};
-*/
-/*
-float FindRadius(PhysicalObject Obj1, PhysicalObject Obj2)
-{
-	float Radius = (Obj2.GetX() - Obj1.GetX()) + (Obj2.GetY() - Obj1.GetY());
-	return Radius;
-}
-*/
 
 void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& ObjectReg, const int& timescale)
 {
 	//Target object is the one we're moving during this iteration
-	ObjectPropertyMutex.lock();
 	
 	CType dX = 0.0; //Calculated dX increment
 	CType dY = 0.0;	//Calculated dY increment
@@ -49,7 +31,7 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 	CType tdX = TargetObject.GetdX(); //Target object current dX
 	CType tdY = TargetObject.GetdY(); //Target object current dY
 	CType tMass = TargetObject.GetMass(); //Target object mass
-	CType tSize = TargetObject.GetSize(); //Target object size
+	CType tSize = TargetObject.GetRadius(); //Target object size
 	
 
 	for (PhysicalObject* iObject : ObjectReg)
@@ -60,7 +42,7 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 			CType iX = iObject->GetX(); //Iterated object X
 			CType iY = iObject->GetY(); //Iterated object Y
 			CType iMass = iObject->GetMass(); //Iterated object Mass
-			CType iSize = iObject->GetSize(); //Target object size
+			CType iSize = iObject->GetRadius(); //Target object size
 			*/
 
 
@@ -69,7 +51,7 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 
 			/*/--------SOME OLD CODE FOR MERGING & COLLISIONS-------/
 			bool EnableMerge = false;
-			if (sqrtf(RSq) < (TargetObject.GetSize() + iObject->GetSize()))
+			if (sqrtf(RSq) < (TargetObject.GetRadius() + iObject->GetRadius()))
 			{
 				if(EnableMerge)
 					TargetObject.MergeWith(*iObject);
@@ -90,17 +72,17 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 			else */
 
 			{
-				//CType F = Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetSize() - iObject->GetSize());
+				//CType F = Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() - iObject->GetRadius());
 
 				//std::cout << "RadX: " << FindAccX(TargetObject, *iObject) / FindAccY(TargetObject, *iObject) / Radius << " RadY: " << FindAccY(TargetObject, *iObject) / FindAccX(TargetObject, *iObject) / Radius << std::endl;
 				dX += 
 					((iObject->GetX() - TargetObject.GetX())
-					* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetSize() - iObject->GetSize())
+					* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() - iObject->GetRadius())
 					* timescale)
 					/ TargetObject.GetMass();
 				dY += 
 					((iObject->GetY() - TargetObject.GetY())
-						* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetSize() - iObject->GetSize())
+						* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() - iObject->GetRadius())
 						* timescale)
 					/ TargetObject.GetMass();
 			}
@@ -123,37 +105,49 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 
 	TargetObject.SetAcc(TargetObject.GetdX() + dX, TargetObject.GetdY() + dY);
 	TargetObject.SetPos(TargetObject.GetX() + TargetObject.GetdX() * timescale + dX, TargetObject.GetY() + TargetObject.GetdY() * timescale + dY);
-
-	ObjectPropertyMutex.unlock();
 }
 
 void ProcessPhysicsThread(int& iObjectID, int& iThread, const int& ThreadCount, std::vector<PhysicalObject*>& ObjectArray, const int& timescale)
 {
 	for (iObjectID; iObjectID < (int)(ObjectArray.size() / ThreadCount) * (iThread + 1) && iObjectID < ObjectArray.size(); iObjectID++)
 	{
+		//ObjectPropertyMutex.lock();
 		MoveObject(*ObjectArray[iObjectID], ObjectArray, timescale);
+		//ObjectPropertyMutex.unlock();
 	}
 }
 
-void UpdatePhysics(std::vector<PhysicalObject*>& ObjectArray, const int& timescale, const int& ThreadCount)
+void UpdatePhysics(std::vector<PhysicalObject*>& ObjectReg, const int& timescale, bool HT)
 {
-	std::vector<std::thread> Thread;
-	int iObjectID = 0;
-	for (int iThread = 0; iThread < ThreadCount;)
+	
+	if (HT)
 	{
-		if (ObjectArray.size() > 1 && iObjectID < (int)(ObjectArray.size() / ThreadCount) * (iThread + 1) && iThread < ThreadCount && iObjectID < ObjectArray.size())
+		const int ThreadCount = std::thread::hardware_concurrency()-1;
+		std::vector<std::thread> Thread;
+		int iObjectID = 0;
+		for (int iThread = 0; iThread < ThreadCount;)
 		{
-			Thread.emplace_back([&]() {ProcessPhysicsThread(std::ref(iObjectID), iThread, ThreadCount, ObjectArray, timescale); });
-			//std::cout << "Created a new physics thread." << std::endl;
+			if (ObjectReg.size() > 1 && iObjectID < (int)(ObjectReg.size() / ThreadCount) * (iThread + 1) && iThread < ThreadCount && iObjectID < ObjectReg.size())
+			{
+				Thread.emplace_back([&]() {ProcessPhysicsThread(std::ref(iObjectID), iThread, ThreadCount, ObjectReg, timescale); });
+				//std::cout << "Created a new physics thread." << std::endl;
+			}
+			//std::cout << "Physics updated." << std::endl;
+			//std::cout << "Creating a new thread, Thread " << iThread << " last object ID: " << iObjectID << std::endl;
+			iThread++;
+			continue;
 		}
-		//std::cout << "Physics updated." << std::endl;
-		//std::cout << "Creating a new thread, Thread " << iThread << " last object ID: " << iObjectID << std::endl;
-		iThread++;
-		continue;
+		for (auto& t : Thread)
+		{
+			t.join();
+			//std::cout << "Joined a physics thread." << std::endl;
+		}
 	}
-	for (auto& t : Thread)
+	else 
 	{
-		t.join();
-		//std::cout << "Joined a physics thread." << std::endl;
+		for (auto iObject : ObjectReg)
+		{
+			MoveObject(*iObject, ObjectReg, timescale);
+		}
 	}
 };

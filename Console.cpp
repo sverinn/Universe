@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include "WinHeader.h"
 
 #include <iostream>
 #include <cstdio>
