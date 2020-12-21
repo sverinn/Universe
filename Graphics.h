@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "stdafx.h"
 #include "Resources.h"
 
@@ -22,8 +22,8 @@ public:
 
 
 private:
-    IDirect3D9* g_pD3D = NULL;      //Интерфейс для создания устройства рендеринга
-    IDirect3DDevice9* d3dDevice = NULL; //Устройство
+    IDirect3D9* g_pD3D = NULL;      //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    IDirect3DDevice9* d3dDevice = NULL; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	int g_iWidth;
 	int g_iHeight;
 };

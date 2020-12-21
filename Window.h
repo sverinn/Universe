@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "Windows.h"
 #include <memory>
 #include "Graphics.h"
@@ -21,7 +21,7 @@ private:
 		static constexpr const wchar_t* wndClassNameW = L"Universe";
 	};
 private:
-	HWND g_hWnd;            //Дескриптор окна
+	HWND g_hWnd;            //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	int g_iWindowWidth;
 	int g_iWindowHeight;
 	bool g_bApplicationState;
