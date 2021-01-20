@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Window Wnd(1600, 900, L"Universe Simulator");
     
     std::vector<PhysicalObject*> ObjectReg;
-    size_t particleCount = 6000;
+    size_t particleCount = 3000;
 
     CreateRandomObjects(Wnd, ObjectReg, particleCount);
     

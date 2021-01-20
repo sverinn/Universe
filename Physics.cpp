@@ -5,10 +5,11 @@
 
 std::mutex ObjectPropertyMutex;
 
-inline CType Force(const CType M1, const CType M2, const CType DistSq, const CType SizeSum) //Calculate force between Object1 and Object2
+inline CType Force(const CType M1, const CType M2, const CType DistSq, const CType RadiusSum) //Calculate force between Object1 and Object2
 {
-	if (DistSq < (SizeSum * SizeSum))
-		return -(G * M1 * M2 / (SizeSum * SizeSum)) / M1;
+	if (sqrtf(DistSq) < RadiusSum)
+		return -(G * M1 * M2 / (RadiusSum * RadiusSum)) / M1;
+		//return 0;
 	//if (DistSq < 1)
 		//return 0;
 	else
@@ -119,10 +120,9 @@ void ProcessPhysicsThread(int& iObjectID, int& iThread, const int& ThreadCount, 
 
 void UpdatePhysics(std::vector<PhysicalObject*>& ObjectReg, const int& timescale, bool HT)
 {
-	
-	if (HT)
+	const int ThreadCount = std::thread::hardware_concurrency() - 1;
+	if (HT && ObjectReg.size() > ThreadCount)
 	{
-		const int ThreadCount = std::thread::hardware_concurrency()-1;
 		std::vector<std::thread> Thread;
 		int iObjectID = 0;
 		for (int iThread = 0; iThread < ThreadCount;)

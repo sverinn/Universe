@@ -2,9 +2,19 @@
 #include "stdafx.h"
 
 
-struct SimpleVertex
+struct VertexData
 {
-	D3DXVECTOR3 Pos;
-	float Radius;
-	D3DXVECTOR3 Color;
+    float x, y, z;
+    //D3DXCOLOR Color;
+};
+
+struct POS
+{
+    float x, y, z;
+};
+
+struct CircleVertex10
+{
+    POS XYZ[10];
+    //D3DXCOLOR Color;
 };

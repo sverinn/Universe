@@ -1,5 +1,6 @@
 #pragma once
-typedef float CType;
+typedef double CType;
+const float Pi = 3.14159265;
 const double EPS = 1e-24;
 const double G = 6.67448478 * 1e-11;
 const double SolarMass = 1.9885 * 1e30; //Kilogramm

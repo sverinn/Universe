@@ -1,4 +1,5 @@
 ﻿#include "Window.h"
+#include "windowsx.h"
 
 Window::WindowClass Window::WindowClass::wndClass;
 
@@ -148,24 +149,19 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         g_bApplicationState = false;
         break;
-        
-        case WM_KEYDOWN:
-            if (wParam == 'F')
-            {
-                SetWindowText(hWnd, L"FUCK");
-            }
-            break;
-        case WM_KEYUP:
-            SetWindowText(hWnd, L"OFF");
-            break;
+    case WM_KEYDOWN:
+        if (wParam == 'F')
+        {
+        }
+        break;
+    case WM_KEYUP:
+        SetWindowText(hWnd, L"Text");
+        break;
             
-    case WM_CHAR:
-    {
-        static std::wstring wndName;
-        wndName.push_back((char)wParam);
-        SetWindowTextW(hWnd, wndName.c_str());
-    }
-    break;
+    case WM_LBUTTONDOWN:
+         GET_X_LPARAM(lParam);
+         GET_Y_LPARAM(lParam);
+         break;
     }
 
     return DefWindowProc(hWnd, iMsg, wParam, lParam);

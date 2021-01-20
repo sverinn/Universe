@@ -1,7 +1,7 @@
-﻿#include "stdafx.h"
-#include <iostream>
+﻿#include <iostream>
 #include "Graphics.h"
 #include "Resources.h"
+#include "Constants.h"
 
 Graphics::Graphics(HWND g_hWnd)
 {
@@ -39,18 +39,29 @@ Graphics::Graphics(HWND g_hWnd)
 		&d3dpp,
 		&d3dDevice);
 
-	d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);  // �� �� ����� ������������ ���������
+	d3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);  // �� �� ����� ������������ ���������
 	d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE); // � ����� ������� ����
-
-	/*
-	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, g_hWnd,
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		&d3dpp, &d3dDevice)))
-		return E_FAIL;
-	*/
-
 }
-
+/*
+void Graphics::DrawCircle(int X, int Y, int radius, int numSides, DWORD Color)
+{
+	D3DXVECTOR2 Line[128];
+	float Step = Pi * 2.0 / numSides;
+	int Count = 0;
+	for (float a = 0; a < Pi * 2.0; a += Step)
+	{
+		float X1 = radius * cos(a) + X;
+		float Y1 = radius * sin(a) + Y;
+		float X2 = radius * cos(a + Step) + X;
+		float Y2 = radius * sin(a + Step) + Y;
+		Line[Count].x = X1;
+		Line[Count].y = Y1;
+		Line[Count + 1].x = X2;
+		Line[Count + 1].y = Y2;
+		Count += 2;
+	}
+}
+*/
 Graphics::~Graphics()
 {
 	if (d3dDevice != NULL)
