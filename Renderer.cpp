@@ -109,7 +109,7 @@ void RenderFrame(Graphics& pGfx, std::vector<PhysicalObject*> ObjectReg)
 
 
     */
-    pGfx.pDevice()->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(150, 150, 150), 1.0f, 0);
+    pGfx.pDevice()->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
     /*
     pGfx.pDevice()->SetStreamSource(0, pVertexObject, 0, sizeof(VertexData));

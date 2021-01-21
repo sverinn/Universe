@@ -132,9 +132,6 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT iMsg, WPARAM wParam, LPARA
     }
 }
 
-
-
-
 LRESULT WINAPI Window::HandleMsgThunk(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     Window* const pWnd = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));

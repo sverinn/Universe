@@ -1,23 +1,19 @@
 #define _WIN32_WINNT 0x600
 
-
 #pragma comment(lib,"d3d9.lib")
 #pragma comment(lib,"d3dx9.lib")
 #pragma comment(lib,"winmm.lib")
 
-
 #include "Renderer.h"
 #include "Constants.h"
 #include "Console.h"
-#include <string>
-#include <thread>
 #include <mutex>
 #include "stdafx.h"
 #include "Window.h"
 #include "Gameloop.h"
 
 //Переменные игры
-bool ShowConsole = true;
+bool ShowConsole = false;
 const int DeviceCoreCount = std::thread::hardware_concurrency();
 bool keys[256];
 bool HT = true;
@@ -45,12 +41,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     
     BOOL gResult;
 
-    while (true)
+    while (Wnd.ApplicationState())
     {
-        Wnd.ProcessMessages();
+        gResult = Wnd.ProcessMessages();
         if (ShowConsole)
         {
             DoTick(Wnd, ObjectReg, timescale, HT);
+            DebugEcho(ObjectReg);
         }
         else
         {

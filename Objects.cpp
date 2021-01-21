@@ -1,4 +1,5 @@
 #include "Objects.h"
+#include <time.h>
 
 PhysicalObject::PhysicalObject()
 {
