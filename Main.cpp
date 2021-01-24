@@ -19,7 +19,7 @@ const int DeviceCoreCount = std::thread::hardware_concurrency();
 bool keys[256];
 bool HT = true;
 double Scale = 1e-7;
-CType timescale = 50;
+CType timescale = 25;
 
 //Декларации фукнкций
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int iCmdShow); //Точка старта приложения
@@ -35,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Window Wnd(1600, 900, L"Universe Simulator");
     
     std::vector<PhysicalObject*> ObjectReg;
-    size_t particleCount = 3000;
+    size_t particleCount = 5000;
 
     CreateRandomObject(Wnd, ObjectReg, particleCount);
     

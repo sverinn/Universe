@@ -13,7 +13,7 @@ void CreateRandomObject(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg)
     CType randY = 1.f + (rand() % Wnd.Height());
     CType randMass = 10.f + (rand() % 1000) * (rand() % 1000);
     //CType randMass = 100000;        
-    D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 255.f };
+    D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 1.f };
 
     ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, randMass / 32982.53, 0, 0, RandRGBA));
 }
@@ -23,7 +23,7 @@ void CreateRandomObject(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg, in
     srand(clock());
     CType randMass = 10.f + (rand() % 1000) * (rand() % 1000);
     //CType randMass = 100000;        
-    D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 255.f };
+    D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 1.f };
 
     ObjectReg.push_back(new PhysicalObject(X, Y, randMass, randMass / 32982.53, 0, 0, RandRGBA));
 }
@@ -38,7 +38,7 @@ void CreateRandomObject(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg, si
         CType randY = 1.f + (rand() % Wnd.Height());
         CType randMass = 10.f + (rand() % 1000) * (rand() % 1000);
         //CType randMass = 100000;        
-        D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 255.f };
+        D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 1.f };
         //if (i > 0)
             /*
             while (fabs(ObjectReg[i - 1]->GetX() - randX) < 1 && fabs(ObjectReg[i - 1]->GetY() - randY) < 1)
@@ -56,14 +56,7 @@ void CreateRandomObject(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg, si
         ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, randMass / 32982.53, 0, 0, RandRGBA));
     }
 }
-/*
-void CreateObjectAt(int X, int Y)
-{
-    CType randMass = 10.f + (rand() % 1000) * (rand() % 1000);
-    D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 100) };
-    ObjectReg.push_back(new PhysicalObject(X, Y, randMass, randMass / 10000, 0, 0, RandRGBA));
-}
-*/
+
 void DoTick(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg, CType timescale, bool HT)
 {
     //srand(clock());
