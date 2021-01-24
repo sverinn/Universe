@@ -7,11 +7,19 @@ std::mutex ObjectPropertyMutex;
 
 inline CType Force(const CType M1, const CType M2, const CType DistSq, const CType RadiusSum) //Calculate force between Object1 and Object2
 {
+	/*if (RadiusSum < EPS)
+	{
+		return 0;
+	}
+	else*/
 	if (sqrtf(DistSq) < RadiusSum)
-		return -(G * M1 * M2 / (RadiusSum * RadiusSum)) / M1;
+	{
+		if ( DistSq < EPS)
+			return 0;
+		else
+			return -((G * M1 * M2) / (RadiusSum * RadiusSum)) / M1;
 		//return 0;
-	//if (DistSq < 1)
-		//return 0;
+	}
 	else
 		return (G * M1 * M2) / DistSq;
 };
@@ -78,12 +86,12 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 				//std::cout << "RadX: " << FindAccX(TargetObject, *iObject) / FindAccY(TargetObject, *iObject) / Radius << " RadY: " << FindAccY(TargetObject, *iObject) / FindAccX(TargetObject, *iObject) / Radius << std::endl;
 				dX += 
 					((iObject->GetX() - TargetObject.GetX())
-					* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() - iObject->GetRadius())
+					* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() + iObject->GetRadius())
 					* timescale)
 					/ TargetObject.GetMass();
 				dY += 
 					((iObject->GetY() - TargetObject.GetY())
-						* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() - iObject->GetRadius())
+						* Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() + iObject->GetRadius())
 						* timescale)
 					/ TargetObject.GetMass();
 			}

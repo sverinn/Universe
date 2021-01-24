@@ -8,6 +8,9 @@
 // For debugging
 #include <io.h>
 #include <fcntl.h>
+#include "Console.h"
+#include <vector>
+#include "Objects.h"
 
 
 #define UNUSED(x) (void)(x)       // Unused param (C compatible - not applicable to expressions)
@@ -46,3 +49,13 @@ void CallConsole()
     // make sure to restore the original so we don't get a crash on close!
     std::cout.rdbuf(sb);
 };
+
+void DebugEcho(std::vector<PhysicalObject*> ObjectReg)
+{
+    {
+        for (auto iObject : ObjectReg)
+        {
+            iObject->ShowInfo();
+        }
+    }
+}

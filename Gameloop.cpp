@@ -2,10 +2,33 @@
 #include "Physics.h"
 #include "Window.h"
 #include "Objects.h"
+#include "Gameloop.h"
 
 
 
-void CreateRandomObjects(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg,  size_t particleCount)
+void CreateRandomObject(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg)
+{
+    srand(clock());
+    CType randX = 1.f + (rand() % Wnd.Width());
+    CType randY = 1.f + (rand() % Wnd.Height());
+    CType randMass = 10.f + (rand() % 1000) * (rand() % 1000);
+    //CType randMass = 100000;        
+    D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 255.f };
+
+    ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, randMass / 32982.53, 0, 0, RandRGBA));
+}
+
+void CreateRandomObject(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg, int X, int Y)
+{
+    srand(clock());
+    CType randMass = 10.f + (rand() % 1000) * (rand() % 1000);
+    //CType randMass = 100000;        
+    D3DXCOLOR RandRGBA = { (float)(rand() % 255),(float)(rand() % 255),(float)(rand() % 255), 255.f };
+
+    ObjectReg.push_back(new PhysicalObject(X, Y, randMass, randMass / 32982.53, 0, 0, RandRGBA));
+}
+
+void CreateRandomObject(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg, size_t particleCount)
 {
     //ObjectReg.push_back(new PhysicalObject(Wnd.Width() / 2, Wnd.Height() / 2, 100000000, 80, 0, 0, { 240,240,20,200 }));
     srand(clock());
@@ -30,7 +53,7 @@ void CreateRandomObjects(Window& Wnd, std::vector<PhysicalObject*>& ObjectReg,  
                 ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, sqrtf(randMass) / 20, 0, 0));
             else
             */
-            ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, randMass / 32982.53, 0, 0, RandRGBA));
+        ObjectReg.push_back(new PhysicalObject(randX, randY, randMass, randMass / 32982.53, 0, 0, RandRGBA));
     }
 }
 /*

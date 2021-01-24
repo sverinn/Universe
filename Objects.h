@@ -7,7 +7,7 @@
 
 static int IDCounter = 0;
 
-static class PhysicalObject
+class PhysicalObject
 {
 private:
 	int ID;

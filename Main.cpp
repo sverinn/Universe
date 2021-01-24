@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include "Window.h"
 #include "Gameloop.h"
+#include <windowsx.h>
 
 //Переменные игры
 bool ShowConsole = false;
@@ -22,7 +23,6 @@ CType timescale = 50;
 
 //Декларации фукнкций
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int iCmdShow); //Точка старта приложения
-void DebugEcho(std::vector<PhysicalObject*> ObjectReg);
 double eps(double value);
 
 
@@ -37,13 +37,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     std::vector<PhysicalObject*> ObjectReg;
     size_t particleCount = 3000;
 
-    CreateRandomObjects(Wnd, ObjectReg, particleCount);
+    CreateRandomObject(Wnd, ObjectReg, particleCount);
     
     BOOL gResult;
 
     while (Wnd.ApplicationState())
     {
         gResult = Wnd.ProcessMessages();
+
         if (ShowConsole)
         {
             DoTick(Wnd, ObjectReg, timescale, HT);
@@ -65,13 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 }
 
-void DebugEcho(std::vector<PhysicalObject*> ObjectReg)
-{
-    for (int i = 0; i < ObjectReg.size(); i++)
-    {
-        ObjectReg[i]->ShowInfo();
-    }
-}
+
 
 double eps(double value)
 {

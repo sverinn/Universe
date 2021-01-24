@@ -1,10 +1,7 @@
 #pragma once
-#include "Gameloop.h"
 
-class Input
+static struct Input
 {
-private:
-	bool keys[256];
-public:
-	void CreateObject_MPointer(int X, int Y);
+	const bool keys[256];
+	const int params[2];
 };

@@ -124,10 +124,14 @@ LRESULT WINAPI Window::HandleMsgSetup(HWND hWnd, UINT iMsg, WPARAM wParam, LPARA
 {
     if (iMsg == WM_NCCREATE)
     {
-        const CREATESTRUCTW* const pCreateStruct = reinterpret_cast<CREATESTRUCTW*>(lParam);
-        Window* const pWnd = static_cast<Window*>(pCreateStruct->lpCreateParams);
+        // extract ptr to window class from creation data
+        const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+        Window* const pWnd = static_cast<Window*>(pCreate->lpCreateParams);
+        // set WinAPI-managed user data to store ptr to window instance
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
+        // set message proc to normal (non-setup) handler now that setup is finished
         SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&Window::HandleMsgThunk));
+        // forward message to window instance handler
         return pWnd->HandleMsg(hWnd, iMsg, wParam, lParam);
     }
 }
@@ -150,14 +154,15 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
         if (wParam == 'F')
         {
         }
+
         break;
     case WM_KEYUP:
-        SetWindowText(hWnd, L"Text");
+        //SetWindowText(hWnd, L"Text");
         break;
             
     case WM_LBUTTONDOWN:
-         GET_X_LPARAM(lParam);
-         GET_Y_LPARAM(lParam);
+        GET_X_LPARAM(lParam);
+        GET_Y_LPARAM(lParam);
          break;
     }
 

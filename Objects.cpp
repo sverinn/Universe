@@ -3,13 +3,13 @@
 
 PhysicalObject::PhysicalObject()
 {
-	srand(clock());
 
+	srand(clock());
 	ID = IDCounter++;
 	Mass = rand() % 10000000;
 	Radius = pow(((Mass / (rand() % 20)) / 0.5236), 1 / 3) / 2;
-	X = rand() % 100;
-	Y = rand() % 100;
+	X = rand() % 1000;
+	Y = rand() % 1000;
 	dX = rand() % 2;
 	dY = rand() % 2;
 }
