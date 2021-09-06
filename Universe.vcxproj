@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{E363211D-57C4-43E2-BB7E-D4CEBA95010C}</ProjectGuid>
     <RootNamespace>Universe</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -249,9 +249,11 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="ObjectHandler.cpp" />
     <ClCompile Include="Objects.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Scenes.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Tick.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -262,9 +264,11 @@
     <ClInclude Include="Gameloop.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="ObjectHandler.h" />
     <ClInclude Include="Objects.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Scenes.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Tick.h" />
     <ClInclude Include="Resources.h" />

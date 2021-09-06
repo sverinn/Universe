@@ -21,7 +21,7 @@ private:
 		static constexpr const wchar_t* wndClassNameW = L"Universe";
 	};
 private:
-	HWND g_hWnd;            //���������� ����
+	HWND g_hWnd;
 	int g_iWindowWidth;
 	int g_iWindowHeight;
 	bool g_bApplicationState;

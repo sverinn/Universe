@@ -12,14 +12,16 @@
 #include "Window.h"
 #include "Gameloop.h"
 #include <windowsx.h>
+#include "Scenes.h"
+#include "ObjectHandler.h"
 
 //Переменные игры
 bool ShowConsole = false;
 const int DeviceCoreCount = std::thread::hardware_concurrency();
 bool keys[256];
 bool HT = true;
-double Scale = 1e-7;
-CType timescale = 25;
+double Scale = 1e-12;
+CType timescale = 5000;
 
 //Декларации фукнкций
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int iCmdShow); //Точка старта приложения
@@ -35,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Window Wnd(1600, 900, L"Universe Simulator");
     
     std::vector<PhysicalObject*> ObjectReg;
-    size_t particleCount = 5000;
+    size_t particleCount = 100;
 
     CreateRandomObject(Wnd, ObjectReg, particleCount);
     

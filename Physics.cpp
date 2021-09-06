@@ -31,7 +31,7 @@ inline CType DistSq(const CType X1, const CType Y1, const CType X2, const CType 
 
 void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& ObjectReg, const int& timescale)
 {
-	//Target object is the one we're moving during this iteration
+	//Target object is the one we're moving during each iteration
 	
 	CType dX = 0.0; //Calculated dX increment
 	CType dY = 0.0;	//Calculated dY increment
@@ -58,27 +58,16 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 			CType RSq = DistSq(TargetObject.GetX(), TargetObject.GetY(), iObject->GetX(), iObject->GetY()); //Square radius between TargetObject and iObject
 
 
-			/*/--------SOME OLD CODE FOR MERGING & COLLISIONS-------/
-			bool EnableMerge = false;
-			if (sqrtf(RSq) < (TargetObject.GetRadius() + iObject->GetRadius()))
-			{
-				if(EnableMerge)
-					TargetObject.MergeWith(*iObject);
-				std::cout << "Object " << iObject->GetID() << " collided with " << TargetObject.GetID() << std::endl;
-				if (EnableMerge)
-					if (ObjectReg.size() > 0)
-					{
-						for (int i = iObject->GetID() + 1; i < ObjectReg.size(); i++)
-							ObjectReg[i]->DecrID();
-						ObjectReg.erase(ObjectReg.begin() + iObject->GetID());
-					}
-				TargetObject.SetAcc(-TargetObject.GetdX(), TargetObject.GetdY());
-				iObject->SetAcc(-iObject->GetdX(), iObject->GetdY());
+			////--------SOME OLD CODE FOR MERGING & COLLISIONS-------/
+			//if (sqrtf(RSq) < (TargetObject.GetRadius() + iObject->GetRadius()))
+			//{
+			//	TargetObject.SetAcc(-TargetObject.GetdX(), TargetObject.GetdY());
+			//	iObject->SetAcc(-iObject->GetdX(), iObject->GetdY());
 
-				iObject->SetAcc(iObject->GetdX(), -iObject->GetdY());
-				TargetObject.SetAcc(TargetObject.GetdX(), -TargetObject.GetdY());
-			}
-			else */
+			//	iObject->SetAcc(iObject->GetdX(), -iObject->GetdY());
+			//	TargetObject.SetAcc(TargetObject.GetdX(), -TargetObject.GetdY());
+			//}
+			//else
 
 			{
 				//CType F = Force(TargetObject.GetMass(), iObject->GetMass(), RSq, TargetObject.GetRadius() - iObject->GetRadius());
@@ -114,6 +103,11 @@ void MoveObject(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& Obje
 
 	TargetObject.SetAcc(TargetObject.GetdX() + dX, TargetObject.GetdY() + dY);
 	TargetObject.SetPos(TargetObject.GetX() + TargetObject.GetdX() * timescale + dX, TargetObject.GetY() + TargetObject.GetdY() * timescale + dY);
+}
+
+void CheckCollisions(PhysicalObject& TargetObject, std::vector<PhysicalObject*>& ObjectReg, const int& timescale)
+{
+
 }
 
 void ProcessPhysicsThread(int& iObjectID, int& iThread, const int& ThreadCount, std::vector<PhysicalObject*>& ObjectArray, const int& timescale)
